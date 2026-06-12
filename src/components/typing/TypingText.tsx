@@ -14,7 +14,7 @@ export function TypingText({ targetText, typedText }: TypingTextProps) {
           typedCharacter === undefined ? (index === typedText.length ? "current" : "") : typedCharacter === character ? "correct" : "incorrect";
         return (
           <span key={`${character}-${index}`} className={clsx("char", state)} aria-current={state === "current" ? "true" : undefined}>
-            {character === " " ? "\u00A0" : character}
+            {character}
           </span>
         );
       })}
@@ -24,7 +24,7 @@ export function TypingText({ targetText, typedText }: TypingTextProps) {
             .split("")
             .map((character, index) => (
               <span key={`extra-${character}-${index}`} className="char incorrect">
-                {character === " " ? "\u00A0" : character}
+                {character}
               </span>
             ))
         : null}
