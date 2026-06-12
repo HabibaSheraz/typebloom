@@ -1,0 +1,775 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TypeBloom Preview</title>
+    <style>
+      :root {
+        --bg: #100716;
+        --plum: #180b24;
+        --surface: rgba(36, 16, 50, 0.78);
+        --surface-2: rgba(16, 7, 22, 0.62);
+        --border: rgba(196, 181, 253, 0.18);
+        --text: #fdf4ff;
+        --soft: #d8b4fe;
+        --muted: #a78bfa;
+        --purple: #8b5cf6;
+        --violet: #a855f7;
+        --pink: #ec4899;
+        --rose: #f472b6;
+        --lavender: #c4b5fd;
+        --blush: #fbcfe8;
+        --green: #34d399;
+        --red: #fb7185;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background:
+          linear-gradient(135deg, rgba(236, 72, 153, 0.12), transparent 28%),
+          linear-gradient(225deg, rgba(139, 92, 246, 0.14), transparent 32%),
+          linear-gradient(160deg, #100716 0%, #180b24 55%, #100716 100%);
+        color: var(--text);
+        font-family: Inter, Manrope, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      button,
+      input {
+        font: inherit;
+      }
+
+      button:focus-visible,
+      a:focus-visible {
+        outline: 3px solid rgba(244, 114, 182, 0.55);
+        outline-offset: 3px;
+      }
+
+      .app {
+        display: grid;
+        grid-template-columns: 278px minmax(0, 1fr);
+        min-height: 100vh;
+      }
+
+      .sidebar {
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        padding: 22px;
+        border-right: 1px solid var(--border);
+        background: rgba(16, 7, 22, 0.82);
+        backdrop-filter: blur(20px);
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 28px;
+      }
+
+      .mark {
+        display: grid;
+        width: 48px;
+        height: 48px;
+        place-items: center;
+        border: 1px solid rgba(196, 181, 253, 0.35);
+        border-radius: 15px;
+        background: linear-gradient(145deg, #241032, #100716);
+        color: var(--rose);
+        font-size: 23px;
+        font-weight: 900;
+        box-shadow: 0 14px 38px rgba(236, 72, 153, 0.22);
+      }
+
+      .brand strong {
+        display: block;
+        font-size: 19px;
+      }
+
+      .brand span:last-child {
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      nav {
+        display: grid;
+        gap: 8px;
+      }
+
+      .nav {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        width: 100%;
+        min-height: 44px;
+        padding: 0 13px;
+        border: 0;
+        border-radius: 12px;
+        background: transparent;
+        color: var(--soft);
+        cursor: pointer;
+        text-align: left;
+      }
+
+      .nav.active,
+      .nav:hover {
+        background: rgba(236, 72, 153, 0.14);
+        color: var(--text);
+        box-shadow: inset 3px 0 0 var(--rose);
+      }
+
+      .main {
+        min-width: 0;
+        padding: 22px clamp(18px, 3vw, 38px) 38px;
+      }
+
+      .topbar,
+      .hero-row,
+      .split {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+      }
+
+      .topbar {
+        min-height: 64px;
+        margin-bottom: 22px;
+      }
+
+      .eyebrow {
+        margin: 0 0 4px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      h1,
+      h2,
+      p {
+        margin-top: 0;
+      }
+
+      h1 {
+        margin-bottom: 0;
+        font-size: clamp(28px, 3vw, 42px);
+        line-height: 1.1;
+      }
+
+      h2 {
+        margin-bottom: 8px;
+      }
+
+      p {
+        color: var(--soft);
+        line-height: 1.65;
+      }
+
+      .panel {
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        background: var(--surface);
+        box-shadow: 0 24px 70px rgba(236, 72, 153, 0.12);
+        backdrop-filter: blur(18px);
+      }
+
+      .padded {
+        padding: 22px;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 42px;
+        padding: 0 16px;
+        border: 0;
+        border-radius: 12px;
+        background: linear-gradient(135deg, var(--purple), var(--pink));
+        color: var(--text);
+        cursor: pointer;
+        font-weight: 700;
+        box-shadow: 0 14px 32px rgba(139, 92, 246, 0.22);
+      }
+
+      .btn.secondary {
+        border: 1px solid rgba(196, 181, 253, 0.2);
+        background: rgba(196, 181, 253, 0.08);
+        box-shadow: none;
+      }
+
+      .grid {
+        display: grid;
+        gap: 16px;
+      }
+
+      .stats {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+
+      .stat {
+        padding: 18px;
+      }
+
+      .stat small {
+        color: var(--muted);
+      }
+
+      .stat strong {
+        display: block;
+        margin: 8px 0;
+        font-size: 30px;
+      }
+
+      .two {
+        grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.75fr);
+      }
+
+      .chart {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        align-items: end;
+        height: 220px;
+        gap: 12px;
+      }
+
+      .bar {
+        border-radius: 12px 12px 4px 4px;
+        background: linear-gradient(180deg, var(--rose), var(--purple));
+      }
+
+      .course-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .track {
+        height: 8px;
+        overflow: hidden;
+        border-radius: 999px;
+        background: rgba(196, 181, 253, 0.14);
+      }
+
+      .fill {
+        height: 100%;
+        border-radius: inherit;
+        background: linear-gradient(90deg, var(--pink), var(--purple));
+      }
+
+      .lesson {
+        grid-template-columns: minmax(0, 1fr) 300px;
+      }
+
+      .typing {
+        min-height: 190px;
+        padding: 24px;
+        border-radius: 16px;
+        background: var(--surface-2);
+        font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+        font-size: clamp(22px, 2.3vw, 32px);
+        line-height: 1.75;
+      }
+
+      .char {
+        border-radius: 5px;
+        color: rgba(216, 180, 254, 0.58);
+      }
+
+      .char.correct {
+        color: var(--green);
+      }
+
+      .char.incorrect {
+        color: var(--red);
+        background: rgba(251, 113, 133, 0.16);
+      }
+
+      .char.current {
+        color: var(--text);
+        background: rgba(244, 114, 182, 0.22);
+        box-shadow: 0 0 0 1px rgba(244, 114, 182, 0.36);
+      }
+
+      #typingInput {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .metric-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-radius: 12px;
+        background: rgba(16, 7, 22, 0.45);
+        padding: 11px 13px;
+      }
+
+      .metric-row span {
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .metric-row strong {
+        color: var(--blush);
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+      }
+
+      .keyboard {
+        padding: 16px;
+      }
+
+      .key-row {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        margin-bottom: 8px;
+      }
+
+      .key {
+        display: grid;
+        min-width: 42px;
+        height: 42px;
+        place-items: center;
+        border: 1px solid rgba(196, 181, 253, 0.17);
+        border-radius: 10px;
+        background: rgba(196, 181, 253, 0.08);
+        color: var(--soft);
+        font-family: "JetBrains Mono", ui-monospace, monospace;
+      }
+
+      .key.expected {
+        border-color: rgba(244, 114, 182, 0.72);
+        background: rgba(236, 72, 153, 0.2);
+        color: var(--text);
+      }
+
+      .key.pressed {
+        background: rgba(52, 211, 153, 0.17);
+        color: var(--text);
+        transform: translateY(1px);
+      }
+
+      .screen {
+        display: none;
+      }
+
+      .screen.active {
+        display: grid;
+      }
+
+      @media (max-width: 940px) {
+        .app,
+        .stats,
+        .two,
+        .course-grid,
+        .lesson {
+          grid-template-columns: 1fr;
+        }
+
+        .sidebar {
+          position: static;
+          height: auto;
+        }
+
+        nav {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <aside class="sidebar">
+        <div class="brand" aria-label="TypeBloom">
+          <div class="mark">T</div>
+          <div>
+            <strong>TypeBloom</strong>
+            <span>Learn faster. Type beautifully.</span>
+          </div>
+        </div>
+        <nav aria-label="Main navigation">
+          <button class="nav active" data-screen="dashboard">Dashboard</button>
+          <button class="nav" data-screen="learn">Learn</button>
+          <button class="nav" data-screen="lesson">Practice Lesson</button>
+          <button class="nav" data-screen="test">Typing Test</button>
+          <button class="nav" data-screen="settings">Settings</button>
+        </nav>
+      </aside>
+
+      <main class="main">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">Guest workspace</p>
+            <h1 id="screenTitle">Welcome back, Bloom</h1>
+          </div>
+          <button class="btn secondary" type="button">7 day streak</button>
+        </header>
+
+        <section id="dashboard" class="screen active grid">
+          <div class="panel padded hero-row">
+            <div>
+              <p class="eyebrow">Today's suggested lesson</p>
+              <h2>Home Row Rhythm</h2>
+              <p>A short drill focused on smooth rhythm, clean semicolons, and relaxed accuracy.</p>
+            </div>
+            <button class="btn" data-screen="lesson">Resume Lesson</button>
+          </div>
+
+          <div class="grid stats">
+            <article class="panel stat"><small>Best WPM</small><strong>58</strong><span>+6 this week</span></article>
+            <article class="panel stat"><small>Average Accuracy</small><strong>96%</strong><span>Goal is 97%</span></article>
+            <article class="panel stat"><small>Practice Time</small><strong>2h 18m</strong><span>Across 8 sessions</span></article>
+            <article class="panel stat"><small>Current Streak</small><strong>7</strong><span>One week blooming</span></article>
+          </div>
+
+          <div class="grid two">
+            <article class="panel padded">
+              <h2>WPM Over Time</h2>
+              <div class="chart" aria-label="Weekly WPM chart">
+                <div class="bar" style="height: 76px"></div>
+                <div class="bar" style="height: 84px"></div>
+                <div class="bar" style="height: 91px"></div>
+                <div class="bar" style="height: 96px"></div>
+                <div class="bar" style="height: 116px"></div>
+                <div class="bar" style="height: 134px"></div>
+                <div class="bar" style="height: 150px"></div>
+              </div>
+            </article>
+            <article class="panel padded">
+              <h2>Weak Keys</h2>
+              <div class="grid">
+                <div class="metric-row"><strong>R</strong><span>92% accuracy</span></div>
+                <div class="metric-row"><strong>T</strong><span>89% accuracy</span></div>
+                <div class="metric-row"><strong>;</strong><span>86% accuracy</span></div>
+                <div class="metric-row"><strong>K</strong><span>83% accuracy</span></div>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section id="learn" class="screen grid">
+          <div class="panel padded">
+            <p class="eyebrow">Structured curriculum</p>
+            <h2>Learn touch typing in gentle, measurable steps.</h2>
+            <p>The full curriculum spans foundations, rows, punctuation, symbols, speed, accuracy, code, and numeric keypad practice.</p>
+          </div>
+          <div class="grid course-grid" id="courseGrid"></div>
+        </section>
+
+        <section id="lesson" class="screen grid">
+          <div class="panel padded">
+            <div class="split">
+              <div>
+                <p class="eyebrow">Home Row · Level 2</p>
+                <h2>Home Row Rhythm</h2>
+              </div>
+              <div class="split">
+                <button class="btn secondary" id="soundButton" type="button">Muted</button>
+                <button class="btn secondary" id="restartButton" type="button">Restart</button>
+              </div>
+            </div>
+            <div class="track" style="margin-top: 18px"><div class="fill" id="lessonProgress" style="width: 0%"></div></div>
+          </div>
+
+          <div class="grid lesson">
+            <div class="grid">
+              <article class="panel padded" id="typingPanel">
+                <input id="typingInput" aria-label="Type the lesson text" autocomplete="off" />
+                <div class="typing" id="typingText"></div>
+              </article>
+              <div class="panel keyboard" id="keyboard"></div>
+            </div>
+            <aside class="grid">
+              <article class="panel padded">
+                <h2>Live Metrics</h2>
+                <div class="grid" id="liveStats"></div>
+              </article>
+              <article class="panel padded" id="resultCard" hidden>
+                <p class="eyebrow">Lesson complete</p>
+                <h2>Beautiful rhythm.</h2>
+                <p id="resultCopy"></p>
+                <button class="btn" id="tryAgainButton" type="button">Try Again</button>
+              </article>
+            </aside>
+          </div>
+        </section>
+
+        <section id="test" class="screen grid">
+          <article class="panel padded">
+            <p class="eyebrow">Typing Test</p>
+            <h2>Quick test foundation</h2>
+            <p>Timed tests are scaffolded for 15 seconds through custom duration. The shared engine is active in the lesson screen.</p>
+            <button class="btn" data-screen="lesson">Use Lesson Engine</button>
+          </article>
+        </section>
+
+        <section id="settings" class="screen grid">
+          <article class="panel padded">
+            <p class="eyebrow">Settings</p>
+            <h2>Practice controls</h2>
+            <div class="grid" id="settingsGrid"></div>
+          </article>
+        </section>
+      </main>
+    </div>
+
+    <script>
+      const targetText = "sad lad fall; ask dad; jade flask; a lass adds salad; all fall as jade asks dad.";
+      const courses = [
+        ["Keyboard Foundations", "Posture, finger placement, home row awareness, and confident rhythm.", 62],
+        ["Home Row", "Build dependable control over A S D F and J K L ;.", 28],
+        ["Top Row", "Add Q W E R T and Y U I O P with short word patterns.", 0],
+        ["Code Typing", "Practice punctuation, brackets, indentation, and programming snippets.", 0]
+      ];
+      const keyRows = [
+        ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"],
+        ["A", "S", "D", "F", "J", "K", "L", ";"],
+        ["Z", "X", "C", "V", "B", "N", "M", ",", ".", "/"],
+        ["Space"]
+      ];
+      const settings = [
+        ["Keyboard layout", "QWERTY"],
+        ["Virtual keyboard", "Visible"],
+        ["Backspace", "Allowed"],
+        ["Stop on error", "Off"],
+        ["Sound effects", "Muted"],
+        ["Exercise text size", "Comfortable"]
+      ];
+
+      let typedText = "";
+      let startedAt = null;
+      let endedAt = null;
+      let backspaceCount = 0;
+      let correctedErrors = 0;
+      let pressedKey = null;
+
+      const title = document.getElementById("screenTitle");
+      const input = document.getElementById("typingInput");
+      const typingText = document.getElementById("typingText");
+      const liveStats = document.getElementById("liveStats");
+      const progress = document.getElementById("lessonProgress");
+      const keyboard = document.getElementById("keyboard");
+      const resultCard = document.getElementById("resultCard");
+      const resultCopy = document.getElementById("resultCopy");
+
+      function setScreen(screen) {
+        document.querySelectorAll(".screen").forEach((item) => item.classList.remove("active"));
+        document.querySelectorAll(".nav").forEach((item) => item.classList.toggle("active", item.dataset.screen === screen));
+        document.getElementById(screen).classList.add("active");
+        title.textContent = {
+          dashboard: "Welcome back, Bloom",
+          learn: "Learning Path",
+          lesson: "Practice Lesson",
+          test: "Typing Test",
+          settings: "Settings"
+        }[screen];
+        if (screen === "lesson") {
+          setTimeout(() => input.focus(), 0);
+        }
+      }
+
+      function compareText() {
+        let correct = 0;
+        let incorrect = 0;
+        let streak = 0;
+        let longest = 0;
+        const shared = Math.min(targetText.length, typedText.length);
+        for (let index = 0; index < shared; index += 1) {
+          if (targetText[index] === typedText[index]) {
+            correct += 1;
+            streak += 1;
+            longest = Math.max(longest, streak);
+          } else {
+            incorrect += 1;
+            streak = 0;
+          }
+        }
+        return {
+          correct,
+          incorrect,
+          extra: Math.max(0, typedText.length - targetText.length),
+          missed: Math.max(0, targetText.length - typedText.length),
+          longest
+        };
+      }
+
+      function metrics() {
+        const now = endedAt || Date.now();
+        const elapsedMs = Math.max(1000, (startedAt ? now - startedAt : 1000));
+        const elapsedMinutes = elapsedMs / 60000;
+        const comparison = compareText();
+        const grossWpm = typedText.length / 5 / elapsedMinutes;
+        const netWpm = Math.max(0, grossWpm - comparison.incorrect / elapsedMinutes / 5);
+        const accuracy = typedText.length === 0 ? 100 : (comparison.correct / typedText.length) * 100;
+        return {
+          netWpm,
+          rawWpm: grossWpm,
+          accuracy,
+          errors: comparison.incorrect + comparison.extra,
+          elapsedSeconds: elapsedMs / 1000,
+          consistency: Math.max(0, 100 - Math.abs(accuracy - 96) * 0.8),
+          correctedErrors,
+          backspaceCount
+        };
+      }
+
+      function codeForCharacter(character) {
+        if (!character) return null;
+        if (character === " ") return "SPACE";
+        return character.toUpperCase();
+      }
+
+      function renderTypingText() {
+        typingText.innerHTML = "";
+        targetText.split("").forEach((character, index) => {
+          const span = document.createElement("span");
+          const typed = typedText[index];
+          span.className = "char";
+          if (typed !== undefined) {
+            span.classList.add(typed === character ? "correct" : "incorrect");
+          } else if (index === typedText.length) {
+            span.classList.add("current");
+          }
+          span.textContent = character === " " ? "\u00a0" : character;
+          typingText.appendChild(span);
+        });
+        if (typedText.length > targetText.length) {
+          typedText.slice(targetText.length).split("").forEach((character) => {
+            const span = document.createElement("span");
+            span.className = "char incorrect";
+            span.textContent = character === " " ? "\u00a0" : character;
+            typingText.appendChild(span);
+          });
+        }
+      }
+
+      function renderStats() {
+        const current = metrics();
+        liveStats.innerHTML = "";
+        [
+          ["WPM", current.netWpm.toFixed(1)],
+          ["Raw", current.rawWpm.toFixed(1)],
+          ["Accuracy", `${current.accuracy.toFixed(1)}%`],
+          ["Errors", `${current.errors}`],
+          ["Time", `${current.elapsedSeconds.toFixed(1)}s`],
+          ["Consistency", `${current.consistency.toFixed(1)}%`]
+        ].forEach(([label, value]) => {
+          const row = document.createElement("div");
+          row.className = "metric-row";
+          row.innerHTML = `<span>${label}</span><strong>${value}</strong>`;
+          liveStats.appendChild(row);
+        });
+        progress.style.width = `${Math.min(100, (typedText.length / targetText.length) * 100)}%`;
+        if (typedText.length >= targetText.length) {
+          resultCard.hidden = false;
+          resultCopy.textContent = `You finished at ${current.netWpm.toFixed(1)} WPM with ${current.accuracy.toFixed(1)}% accuracy.`;
+        } else {
+          resultCard.hidden = true;
+        }
+      }
+
+      function renderKeyboard() {
+        const expected = codeForCharacter(targetText[typedText.length]);
+        keyboard.innerHTML = "";
+        keyRows.forEach((row) => {
+          const keyRow = document.createElement("div");
+          keyRow.className = "key-row";
+          row.forEach((label) => {
+            const key = document.createElement("span");
+            key.className = "key";
+            key.textContent = label;
+            if (label === "Space") key.style.minWidth = "252px";
+            const code = label === "Space" ? "SPACE" : label;
+            if (code === expected) key.classList.add("expected");
+            if (code === pressedKey) key.classList.add("pressed");
+            keyRow.appendChild(key);
+          });
+          keyboard.appendChild(keyRow);
+        });
+      }
+
+      function renderAll() {
+        renderTypingText();
+        renderStats();
+        renderKeyboard();
+      }
+
+      function restart() {
+        typedText = "";
+        startedAt = null;
+        endedAt = null;
+        backspaceCount = 0;
+        correctedErrors = 0;
+        pressedKey = null;
+        renderAll();
+        input.focus();
+      }
+
+      input.addEventListener("keydown", (event) => {
+        if (event.ctrlKey || event.metaKey || event.altKey) return;
+        if (event.key === "Backspace") {
+          event.preventDefault();
+          if (typedText.length > 0) {
+            const removedIndex = typedText.length - 1;
+            if (typedText[removedIndex] !== targetText[removedIndex]) correctedErrors += 1;
+            typedText = typedText.slice(0, -1);
+            backspaceCount += 1;
+            endedAt = null;
+          }
+          pressedKey = "BACKSPACE";
+          renderAll();
+          return;
+        }
+        if (event.key.length !== 1 || typedText.length >= targetText.length) {
+          event.preventDefault();
+          return;
+        }
+        event.preventDefault();
+        if (!startedAt) startedAt = Date.now();
+        typedText += event.key;
+        pressedKey = codeForCharacter(event.key);
+        if (typedText.length >= targetText.length) endedAt = Date.now();
+        renderAll();
+        setTimeout(() => {
+          pressedKey = null;
+          renderKeyboard();
+        }, 140);
+      });
+
+      input.addEventListener("paste", (event) => event.preventDefault());
+      document.getElementById("typingPanel").addEventListener("click", () => input.focus());
+      document.getElementById("restartButton").addEventListener("click", restart);
+      document.getElementById("tryAgainButton").addEventListener("click", restart);
+      document.querySelectorAll("[data-screen]").forEach((button) => {
+        button.addEventListener("click", () => setScreen(button.dataset.screen));
+      });
+
+      document.getElementById("courseGrid").innerHTML = courses
+        .map(
+          ([name, description, progress]) => `
+            <article class="panel padded">
+              <p class="eyebrow">Course</p>
+              <h2>${name}</h2>
+              <p>${description}</p>
+              <div class="track"><div class="fill" style="width: ${progress}%"></div></div>
+            </article>
+          `
+        )
+        .join("");
+
+      document.getElementById("settingsGrid").innerHTML = settings
+        .map(([label, value]) => `<div class="metric-row"><span>${label}</span><strong>${value}</strong></div>`)
+        .join("");
+
+      setInterval(renderStats, 300);
+      renderAll();
+    </script>
+  </body>
+</html>

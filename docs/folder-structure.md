@@ -1,0 +1,67 @@
+# Folder Structure
+
+```txt
+src/
+  app/
+    (app)/
+      dashboard/
+      learn/
+      lesson/
+      typing-test/
+      code-typing/
+      games/
+      progress/
+      achievements/
+      leaderboard/
+      profile/
+      settings/
+    globals.css
+    layout.tsx
+    page.tsx
+  components/
+    common/
+    courses/
+    dashboard/
+    layout/
+    typing/
+  data/
+    keyboard.ts
+    lessons.ts
+  features/
+    typing-engine/
+      typingEngine.ts
+  styles/
+    design-tokens.ts
+  types/
+    domain.ts
+supabase/
+  migrations/
+tests/
+  unit/
+docs/
+```
+
+Planned expansion folders:
+
+```txt
+src/components/charts
+src/components/games
+src/components/settings
+src/features/auth
+src/features/lessons
+src/features/tests
+src/features/progress
+src/features/achievements
+src/features/goals
+src/features/recommendations
+src/hooks
+src/lib
+src/services
+src/stores
+src/utils
+public/icons
+public/illustrations
+public/sounds
+tests/integration
+tests/e2e
+```
