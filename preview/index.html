@@ -666,6 +666,7 @@
               </div>
               <div class="duration-grid">
                 <button class="btn secondary" type="button" data-screen="dashboard">Menu</button>
+                <button class="btn secondary" id="soundToggleButton" type="button" aria-pressed="false">Sound Off</button>
                 <button class="btn secondary" id="newTextButton" type="button">New Passage</button>
                 <button class="btn secondary" id="restartButton" type="button">Restart</button>
               </div>
@@ -722,6 +723,9 @@
             <p class="eyebrow">Settings</p>
             <h2>Practice controls</h2>
             <div class="grid" id="settingsGrid"></div>
+            <div style="margin-top: 14px">
+              <button class="btn secondary" id="settingsSoundButton" type="button" aria-pressed="false">Sound Off</button>
+            </div>
           </article>
         </section>
       </main>
@@ -825,7 +829,7 @@
         ["Virtual keyboard", "Visible"],
         ["Backspace", "Allowed"],
         ["Stop on error", "Off"],
-        ["Sound effects", "Muted"],
+        ["Sound effects", "Optional"],
         ["Exercise text size", "Responsive"]
       ];
 
@@ -842,6 +846,8 @@
       let backspaceCount = 0;
       let correctedErrors = 0;
       let pressedKey = null;
+      let soundEnabled = false;
+      let audioContext = null;
 
       const title = document.getElementById("screenTitle");
       const input = document.getElementById("typingInput");
@@ -856,6 +862,68 @@
       const sessionTitle = document.getElementById("sessionTitle");
       const passageMeta = document.getElementById("passageMeta");
       const timerHint = document.getElementById("timerHint");
+      const soundToggleButton = document.getElementById("soundToggleButton");
+      const settingsSoundButton = document.getElementById("settingsSoundButton");
+
+      function getAudioContext() {
+        if (!audioContext) {
+          audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioContext.state === "suspended") {
+          audioContext.resume();
+        }
+        return audioContext;
+      }
+
+      function playTone(frequency, duration, type, gainValue, delay = 0) {
+        if (!soundEnabled) return;
+        const context = getAudioContext();
+        const oscillator = context.createOscillator();
+        const gain = context.createGain();
+        const start = context.currentTime + delay;
+        oscillator.type = type;
+        oscillator.frequency.setValueAtTime(frequency, start);
+        gain.gain.setValueAtTime(0.0001, start);
+        gain.gain.exponentialRampToValueAtTime(gainValue, start + 0.012);
+        gain.gain.exponentialRampToValueAtTime(0.0001, start + duration);
+        oscillator.connect(gain);
+        gain.connect(context.destination);
+        oscillator.start(start);
+        oscillator.stop(start + duration + 0.02);
+      }
+
+      function playSound(kind) {
+        if (!soundEnabled) return;
+        if (kind === "key") {
+          playTone(740, 0.045, "sine", 0.035);
+          playTone(980, 0.035, "triangle", 0.02, 0.012);
+        } else if (kind === "error") {
+          playTone(220, 0.08, "triangle", 0.04);
+          playTone(165, 0.08, "sine", 0.025, 0.035);
+        } else if (kind === "complete") {
+          playTone(660, 0.09, "sine", 0.035);
+          playTone(880, 0.11, "triangle", 0.03, 0.075);
+          playTone(1175, 0.14, "sine", 0.025, 0.16);
+        }
+      }
+
+      function syncSoundButtons() {
+        const label = soundEnabled ? "Sound On" : "Sound Off";
+        [soundToggleButton, settingsSoundButton].forEach((button) => {
+          button.textContent = label;
+          button.setAttribute("aria-pressed", String(soundEnabled));
+          button.classList.toggle("active", soundEnabled);
+        });
+      }
+
+      function toggleSound() {
+        soundEnabled = !soundEnabled;
+        if (soundEnabled) {
+          getAudioContext();
+          playSound("complete");
+        }
+        syncSoundButtons();
+      }
 
       function sentenceCount(text) {
         return (text.match(/[.!?]/g) || []).length;
@@ -1113,7 +1181,12 @@
         if (!startedAt) startedAt = Date.now();
         typedText += event.key;
         pressedKey = codeForCharacter(event.key);
-        if (typedText.length >= targetText.length) endedAt = Date.now();
+        const expectedCharacter = targetText[typedText.length - 1];
+        playSound(event.key === expectedCharacter ? "key" : "error");
+        if (typedText.length >= targetText.length) {
+          endedAt = Date.now();
+          playSound("complete");
+        }
         renderAll();
         setTimeout(() => {
           pressedKey = null;
@@ -1132,6 +1205,8 @@
         }
         startPractice(true);
       });
+      soundToggleButton.addEventListener("click", toggleSound);
+      settingsSoundButton.addEventListener("click", toggleSound);
       document.getElementById("tryAgainButton").addEventListener("click", restart);
       document.getElementById("startSelectedTest").addEventListener("click", () => startTest(selectedDuration));
 
@@ -1177,6 +1252,7 @@
 
       setInterval(renderStats, 300);
       updateSessionLabels();
+      syncSoundButtons();
       renderAll();
     </script>
   </body>
